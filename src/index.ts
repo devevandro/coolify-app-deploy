@@ -1,0 +1,67 @@
+import axios from "axios";
+import { getInput, setFailed } from "@actions/core";
+
+export const run = async () => {
+  try {
+    const coolifyUrl = getInput("coolifyUrl");
+    const coolifyToken = getInput("coolifyToken");
+    const appUuid = getInput("coolifyAppUuid");
+    const secrets = getInput("secrets") || "{}";
+    const secretToExclude = getInput("secretsToExclude") || [""];
+
+    if (!coolifyUrl || !coolifyToken || !appUuid) {
+      throw new Error("Missing required environment variables");
+    }
+
+    const secretsParsed =
+      typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+
+    const convertedJsonToArray = Object.entries(secretsParsed)
+      .filter(([key]) => !secretToExclude.includes(key))
+      .map(([key, value]) => ({
+        key,
+        value,
+      }));
+
+    const api = axios.create({
+      baseURL: coolifyUrl,
+      headers: {
+        Authorization: `Bearer ${coolifyToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    // 1. Atualizar as variáveis de ambiente (ENVs)
+    if (secretsParsed.length > 0) {
+      console.log("Updating environment variables...");
+      const body = {
+        data: convertedJsonToArray,
+      };
+      const envUpdate = await api.patch(
+        `/applications/${appUuid}/envs/bulk`,
+        body
+      );
+
+      if (envUpdate.status !== 201) {
+        throw new Error("Failed to update environment variables");
+      }
+
+      console.log("Updated environment variables successfully!");
+    }
+
+    // 2. Reiniciar a aplicação
+    console.log("Restarting application...");
+    const { status } = await api.post(`/deploy?uuid=${appUuid}`);
+
+    if (status !== 200) {
+      throw new Error("Failed to restart application");
+    }
+
+    console.log("Deploy completed successfully!");
+  } catch (error) {
+    setFailed((error as Error)?.message ?? "Unknown error");
+    throw error;
+  }
+};
+
+run();
