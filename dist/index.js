@@ -31,7 +31,7 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        console.log(secrets, 'CACETE');
+        console.log(JSON.parse(secrets), 'CACETE');
         if (secrets !== undefined) {
             const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
             const convertedJsonToArray = Object.entries(secretsParsed)
