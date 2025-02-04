@@ -1,11 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { getInput, setFailed } from "@actions/core";
 
-type Result = {
-  key: string;
-  value: unknown;
-}[];
-
 const errorConstructor = (message: string): never => {
   throw new Error(message);
 };
@@ -30,7 +25,8 @@ export const run = async () => {
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets") || "{}";
-    const secretToExclude = getInput("secretsToExclude") || [""];
+    const secretToExclude = getInput("secrets") || [""];
+    console.log("secrets", secretToExclude);
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       errorConstructor("Missing required environment variables");
