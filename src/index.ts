@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { getInput, setFailed } from "@actions/core";
 
 export const run = async () => {
@@ -10,32 +10,18 @@ export const run = async () => {
     const secretToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
-      throw new Error("Missing required environment variables");
+      errorConstructor("Missing required environment variables");
     }
 
     const secretsParsed =
       typeof secrets === "string" ? JSON.parse(secrets) : secrets;
 
-    const convertedJsonToArray = Object.entries(secretsParsed)
-      .filter(([key]) => !secretToExclude.includes(key))
-      .map(([key, value]) => ({
-        key,
-        value,
-      }));
+    const api = baseApi(coolifyUrl, coolifyToken);
 
-    const api = axios.create({
-      baseURL: coolifyUrl,
-      headers: {
-        Authorization: `Bearer ${coolifyToken}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    // 1. Atualizar as variáveis de ambiente (ENVs)
     if (secretsParsed.length > 0) {
-      console.log("Updating environment variables...");
+      logMessage("Updating environment variables...");
       const body = {
-        data: convertedJsonToArray,
+        data: convertedJsonToArray(secretsParsed, secretToExclude),
       };
       const envUpdate = await api.patch(
         `/applications/${appUuid}/envs/bulk`,
@@ -43,21 +29,20 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        throw new Error("Failed to update environment variables");
+        errorConstructor("Failed to update environment variables");
       }
 
-      console.log("Updated environment variables successfully!");
+      logMessage("Updated environment variables successfully!");
     }
 
-    // 2. Reiniciar a aplicação
-    console.log("Restarting application...");
+    logMessage("Restarting application...");
     const { status } = await api.post(`/deploy?uuid=${appUuid}`);
 
     if (status !== 200) {
-      throw new Error("Failed to restart application");
+      errorConstructor("Failed to restart application");
     }
 
-    console.log("Deploy completed successfully!");
+    logMessage("Deploy completed successfully!");
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;
@@ -65,3 +50,40 @@ export const run = async () => {
 };
 
 run();
+
+type Result = {
+  key: string;
+  value: unknown;
+}[];
+
+const convertedJsonToArray = (
+  secretsParsed: string,
+  secretToExclude: string | string[]
+): Result => {
+  return Object.entries(secretsParsed)
+    .filter(([key]) => !secretToExclude.includes(key))
+    .map(([key, value]) => ({
+      key,
+      value,
+    }));
+};
+
+const baseApi = (coolifyUrl: string, coolifyToken: string): AxiosInstance => {
+  const api = axios.create({
+    baseURL: coolifyUrl,
+    headers: {
+      Authorization: `Bearer ${coolifyToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return api;
+};
+
+const errorConstructor = (message: string): never => {
+  throw new Error(message);
+};
+
+const logMessage = (message: string): void => {
+  console.log(message);
+};
