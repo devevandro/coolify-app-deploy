@@ -7,7 +7,7 @@ export const run = async () => {
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets") || "{}";
-    const secretToExclude = getInput("secrets") || ([] as string[]);
+    const secretToExclude = getInput("secrets");
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       throw new Error("Missing required environment variables");
