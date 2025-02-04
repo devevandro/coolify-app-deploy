@@ -19,20 +19,11 @@ const run = async () => {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
-        const secrets = (0, core_1.getInput)("secrets") || "";
+        const secrets = (0, core_1.getInput)("secrets");
         const secretToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             throw new Error("Missing required environment variables");
         }
-        const secretsParsed = typeof secrets === "string" && secrets !== undefined
-            ? JSON.parse(secrets)
-            : secrets;
-        const convertedJsonToArray = Object.entries(secretsParsed)
-            .filter(([key]) => !secretToExclude.includes(key))
-            .map(([key, value]) => ({
-            key,
-            value,
-        }));
         const api = axios_1.default.create({
             baseURL: coolifyUrl,
             headers: {
@@ -40,7 +31,15 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        if (secretsParsed !== undefined) {
+        console.log(secrets, 'CACETE');
+        if (secrets !== undefined) {
+            const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+            const convertedJsonToArray = Object.entries(secretsParsed)
+                .filter(([key]) => !secretToExclude.includes(key))
+                .map(([key, value]) => ({
+                key,
+                value,
+            }));
             console.log("Updating environment variables...");
             const body = {
                 data: convertedJsonToArray,
