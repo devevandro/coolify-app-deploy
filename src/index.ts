@@ -6,18 +6,6 @@ type Result = {
   value: unknown;
 }[];
 
-const convertedJsonToArray = (
-  secretsParsed: string,
-  secretToExclude: string | string[]
-): Result => {
-  return Object.entries(secretsParsed)
-    .filter(([key]) => !secretToExclude.includes(key))
-    .map(([key, value]) => ({
-      key,
-      value,
-    }));
-};
-
 const errorConstructor = (message: string): never => {
   throw new Error(message);
 };
@@ -55,10 +43,12 @@ export const run = async () => {
 
     if (secretsParsed.length > 0) {
       logMessage("Updating environment variables...");
-      const secretsConverted = convertedJsonToArray(
-        secretsParsed,
-        secretToExclude
-      );
+      const secretsConverted = Object.entries(secretsParsed)
+        .filter(([key]) => !secretToExclude.includes(key))
+        .map(([key, value]) => ({
+          key,
+          value,
+        }));
       const body = {
         data: secretsConverted,
       };
@@ -74,7 +64,7 @@ export const run = async () => {
       logMessage("Updated environment variables successfully!");
     }
 
-    logMessage("Restarting application...");
+    logMessage("Deploying application...");
     const { status } = await api.post(`/deploy?uuid=${appUuid}`);
 
     if (status !== 200) {

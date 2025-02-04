@@ -7,6 +7,7 @@ on:
 jobs:
   hello:
     runs-on: ubuntu-latest
+    environment: stage
     steps:
       - uses: actions/checkout@v3
       - uses: ./

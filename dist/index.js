@@ -13,14 +13,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(7269));
 const core_1 = __nccwpck_require__(7484);
-const convertedJsonToArray = (secretsParsed, secretToExclude) => {
-    return Object.entries(secretsParsed)
-        .filter(([key]) => !secretToExclude.includes(key))
-        .map(([key, value]) => ({
-        key,
-        value,
-    }));
-};
 const errorConstructor = (message) => {
     throw new Error(message);
 };
@@ -51,7 +43,12 @@ const run = async () => {
         const api = baseApi(coolifyUrl, coolifyToken);
         if (secretsParsed.length > 0) {
             logMessage("Updating environment variables...");
-            const secretsConverted = convertedJsonToArray(secretsParsed, secretToExclude);
+            const secretsConverted = Object.entries(secretsParsed)
+                .filter(([key]) => !secretToExclude.includes(key))
+                .map(([key, value]) => ({
+                key,
+                value,
+            }));
             const body = {
                 data: secretsConverted,
             };
@@ -61,7 +58,7 @@ const run = async () => {
             }
             logMessage("Updated environment variables successfully!");
         }
-        logMessage("Restarting application...");
+        logMessage("Deploying application...");
         const { status } = await api.post(`/deploy?uuid=${appUuid}`);
         if (status !== 200) {
             errorConstructor("Failed to restart application");
