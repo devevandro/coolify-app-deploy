@@ -24,7 +24,9 @@ const run = async () => {
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             throw new Error("Missing required environment variables");
         }
-        const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+        const secretsParsed = typeof secrets === "string" && secrets !== undefined
+            ? JSON.parse(secrets)
+            : secrets;
         const convertedJsonToArray = Object.entries(secretsParsed)
             .filter(([key]) => !secretToExclude.includes(key))
             .map(([key, value]) => ({
