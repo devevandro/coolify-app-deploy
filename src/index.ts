@@ -1,6 +1,31 @@
 import axios, { AxiosInstance } from "axios";
 import { getInput, setFailed } from "@actions/core";
 
+type Result = {
+  key: string;
+  value: unknown;
+}[];
+
+const convertedJsonToArray = (
+  secretsParsed: string,
+  secretToExclude: string | string[]
+): Result => {
+  return Object.entries(secretsParsed)
+    .filter(([key]) => !secretToExclude.includes(key))
+    .map(([key, value]) => ({
+      key,
+      value,
+    }));
+};
+
+const errorConstructor = (message: string): never => {
+  throw new Error(message);
+};
+
+const logMessage = (message: string): void => {
+  console.log(message);
+};
+
 export const run = async () => {
   try {
     const coolifyUrl = getInput("coolifyUrl");
@@ -56,28 +81,3 @@ export const run = async () => {
 };
 
 run();
-
-type Result = {
-  key: string;
-  value: unknown;
-}[];
-
-const convertedJsonToArray = (
-  secretsParsed: string,
-  secretToExclude: string | string[]
-): Result => {
-  return Object.entries(secretsParsed)
-    .filter(([key]) => !secretToExclude.includes(key))
-    .map(([key, value]) => ({
-      key,
-      value,
-    }));
-};
-
-const errorConstructor = (message: string): never => {
-  throw new Error(message);
-};
-
-const logMessage = (message: string): void => {
-  console.log(message);
-};

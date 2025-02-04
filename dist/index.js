@@ -13,6 +13,20 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(7269));
 const core_1 = __nccwpck_require__(7484);
+const convertedJsonToArray = (secretsParsed, secretToExclude) => {
+    return Object.entries(secretsParsed)
+        .filter(([key]) => !secretToExclude.includes(key))
+        .map(([key, value]) => ({
+        key,
+        value,
+    }));
+};
+const errorConstructor = (message) => {
+    throw new Error(message);
+};
+const logMessage = (message) => {
+    console.log(message);
+};
 const run = async () => {
     var _a;
     try {
@@ -57,20 +71,6 @@ const run = async () => {
 };
 exports.run = run;
 (0, exports.run)();
-const convertedJsonToArray = (secretsParsed, secretToExclude) => {
-    return Object.entries(secretsParsed)
-        .filter(([key]) => !secretToExclude.includes(key))
-        .map(([key, value]) => ({
-        key,
-        value,
-    }));
-};
-const errorConstructor = (message) => {
-    throw new Error(message);
-};
-const logMessage = (message) => {
-    console.log(message);
-};
 
 
 /***/ }),
