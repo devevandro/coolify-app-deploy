@@ -31,8 +31,7 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        console.log(JSON.parse(secrets), 'CACETE');
-        if (secrets !== undefined) {
+        if (secrets && secrets !== undefined) {
             const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
             const convertedJsonToArray = Object.entries(secretsParsed)
                 .filter(([key]) => !secretToExclude.includes(key))
