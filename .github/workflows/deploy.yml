@@ -1,0 +1,18 @@
+name: "Coolify Deploy"
+
+on:
+  push:
+    branches: [stage]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          coolifyUrl: ${{ secrets.COOLIFY_URL }}
+          coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
+          coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
+          secrets: ${{ toJson(secrets) }}
