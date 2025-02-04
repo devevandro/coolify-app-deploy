@@ -18,7 +18,7 @@ Required Inputs
 Optional Inputs
 
 - secrets: Additional secrets to include in the environment (not required).
-- secretsToExclude: List of secrets to exclude from the environment (not required).
+- secretsToExclude: List of secrets to exclude from the environment (not required). Use if secrets is defined.
 
 🛠️ How to Use
 Simply add this Action to your GitHub Actions workflow and configure the required variables, such as the Coolify URL, API key, and environment variables.
