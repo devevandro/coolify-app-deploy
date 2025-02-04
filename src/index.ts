@@ -26,7 +26,6 @@ export const run = async () => {
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets") || "{}";
     const secretToExclude = getInput("secrets") || [""];
-    console.log("secrets", secretToExclude);
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       errorConstructor("Missing required environment variables");
@@ -36,6 +35,7 @@ export const run = async () => {
       typeof secrets === "string" ? JSON.parse(secrets) : secrets;
 
     const api = baseApi(coolifyUrl, coolifyToken);
+    console.log("secretsParsed", secretsParsed);
 
     if (secretsParsed.length > 0) {
       logMessage("Updating environment variables...");
