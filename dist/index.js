@@ -25,7 +25,13 @@ const run = async () => {
             errorConstructor("Missing required environment variables");
         }
         const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-        const api = baseApi(coolifyUrl, coolifyToken);
+        const api = axios_1.default.create({
+            baseURL: coolifyUrl,
+            headers: {
+                Authorization: `Bearer ${coolifyToken}`,
+                "Content-Type": "application/json",
+            },
+        });
         if (secretsParsed.length > 0) {
             logMessage("Updating environment variables...");
             const body = {
@@ -58,16 +64,6 @@ const convertedJsonToArray = (secretsParsed, secretToExclude) => {
         key,
         value,
     }));
-};
-const baseApi = (coolifyUrl, coolifyToken) => {
-    const api = axios_1.default.create({
-        baseURL: coolifyUrl,
-        headers: {
-            Authorization: `Bearer ${coolifyToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-    return api;
 };
 const errorConstructor = (message) => {
     throw new Error(message);
