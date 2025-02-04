@@ -13,59 +13,48 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(7269));
 const core_1 = __nccwpck_require__(7484);
-const convertedJsonToArray = (secretsParsed, secretToExclude) => {
-    return Object.entries(secretsParsed)
-        .filter(([key]) => !secretToExclude.includes(key))
-        .map(([key, value]) => ({
-        key,
-        value,
-    }));
-};
-const errorConstructor = (message) => {
-    throw new Error(message);
-};
-const logMessage = (message) => {
-    console.log(message);
-};
-const baseApi = (coolifyUrl, coolifyToken) => {
-    return axios_1.default.create({
-        baseURL: coolifyUrl,
-        headers: {
-            Authorization: `Bearer ${coolifyToken}`,
-            "Content-Type": "application/json",
-        },
-    });
-};
 const run = async () => {
     var _a;
     try {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
-        const secrets = (0, core_1.getInput)("secrets") || "{}";
-        const secretToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
+        const secrets = (0, core_1.getInput)("secrets");
+        const secretsToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
         if (!coolifyUrl || !coolifyToken || !appUuid) {
-            errorConstructor("Missing required environment variables");
+            throw new Error("Missing required environment variables");
         }
-        const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-        const api = baseApi(coolifyUrl, coolifyToken);
-        if (secretsParsed.length > 0) {
-            logMessage("Updating environment variables...");
+        const api = axios_1.default.create({
+            baseURL: coolifyUrl,
+            headers: {
+                Authorization: `Bearer ${coolifyToken}`,
+                "Content-Type": "application/json",
+            },
+        });
+        if (secrets && secrets !== undefined) {
+            const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+            const convertedJsonToArray = Object.entries(secretsParsed)
+                .filter(([key]) => !secretsToExclude.includes(key))
+                .map(([key, value]) => ({
+                key,
+                value,
+            }));
+            console.log("Updating environment variables...");
             const body = {
-                data: convertedJsonToArray(secretsParsed, secretToExclude),
+                data: convertedJsonToArray,
             };
             const envUpdate = await api.patch(`/applications/${appUuid}/envs/bulk`, body);
             if (envUpdate.status !== 201) {
-                errorConstructor("Failed to update environment variables");
+                throw new Error("Failed to update environment variables");
             }
-            logMessage("Updated environment variables successfully!");
+            console.log("Updated environment variables successfully!");
         }
-        logMessage("Restarting application...");
-        const { status } = await api.post(`/deploy?uuid=${appUuid}`);
-        if (status !== 200) {
-            errorConstructor("Failed to restart application");
+        console.log("Deploying application...");
+        const restart = await api.post(`/deploy?uuid=${appUuid}`);
+        if (restart.status !== 200) {
+            throw new Error("Failed to restart application");
         }
-        logMessage("Deploy completed successfully!");
+        console.log("Deploy completed successfully!");
     }
     catch (error) {
         (0, core_1.setFailed)((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Unknown error");
