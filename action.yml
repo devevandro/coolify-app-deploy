@@ -14,8 +14,10 @@ inputs:
     required: true
   secrets:
     description: 'Github secrets to be updated on Coolify'
+    required: false
   secretsToExclude:
     description: 'Github secrets to be excluded from the update on Coolify'
+    required: false
 
 runs:
   using: 'node20'
