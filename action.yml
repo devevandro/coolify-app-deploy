@@ -17,6 +17,7 @@ inputs:
     required: false
   secretsToExclude:
     description: 'Github secrets to be excluded from the update on Coolify'
+    default: '[]'
     required: false
 
 runs:
