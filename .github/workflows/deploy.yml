@@ -1,8 +1,8 @@
 name: "Hello"
 
 on:
-  pull_request:
-    types: [opened, reopened]
+  push:
+    branches: [stage]
 
 jobs:
   hello:
