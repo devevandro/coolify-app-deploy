@@ -36,12 +36,12 @@ const run = async () => {
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
         const secrets = (0, core_1.getInput)("secrets") || "{}";
         const secretToExclude = (0, core_1.getInput)("secrets") || [""];
-        console.log("secrets", secretToExclude);
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             errorConstructor("Missing required environment variables");
         }
         const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
         const api = baseApi(coolifyUrl, coolifyToken);
+        console.log("secretsParsed", secretsParsed);
         if (secretsParsed.length > 0) {
             logMessage("Updating environment variables...");
             const secretsConverted = Object.entries(secretsParsed)
