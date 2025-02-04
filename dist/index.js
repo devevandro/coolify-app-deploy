@@ -38,17 +38,15 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        if (secretsParsed.length > 0) {
-            console.log("Updating environment variables...");
-            const body = {
-                data: convertedJsonToArray,
-            };
-            const envUpdate = await api.patch(`/applications/${appUuid}/envs/bulk`, body);
-            if (envUpdate.status !== 201) {
-                throw new Error("Failed to update environment variables");
-            }
-            console.log("Updated environment variables successfully!");
+        console.log("Updating environment variables...");
+        const body = {
+            data: convertedJsonToArray,
+        };
+        const envUpdate = await api.patch(`/applications/${appUuid}/envs/bulk`, body);
+        if (envUpdate.status !== 201) {
+            throw new Error("Failed to update environment variables");
         }
+        console.log("Updated environment variables successfully!");
         console.log("Restarting application...");
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
         if (restart.status !== 200) {
