@@ -1,0 +1,28 @@
+name: GitHub Action - Deploy and Update ENVs on Coolify
+author: devevandro
+description: Deploy and Update ENVs on Coolify
+
+inputs:
+  coolifyUrl:
+    description: 'Coolify URL'
+    required: true
+  coolifyToken:
+    description: 'Coolify Access Token'
+    required: true
+  coolifyAppUuid:
+    description: 'Coolify App UUID'
+    required: true
+  secrets:
+    description: 'Github secrets to be updated on Coolify'
+    required: false
+  secretsToExclude:
+    description: 'Github secrets to be excluded from the update on Coolify'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'x-circle'
+  color: 'green'
