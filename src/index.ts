@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios from "axios";
 import { getInput, setFailed } from "@actions/core";
 
 export const run = async () => {
