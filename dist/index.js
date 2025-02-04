@@ -20,6 +20,7 @@ const run = async () => {
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
         const secrets = (0, core_1.getInput)("secrets");
+        const secretsToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             throw new Error("Missing required environment variables");
         }
@@ -32,7 +33,9 @@ const run = async () => {
         });
         if (secrets && secrets !== undefined) {
             const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-            const convertedJsonToArray = Object.entries(secretsParsed).map(([key, value]) => ({
+            const convertedJsonToArray = Object.entries(secretsParsed)
+                .filter(([key]) => !secretsToExclude.includes(key))
+                .map(([key, value]) => ({
                 key,
                 value,
             }));
