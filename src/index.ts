@@ -37,7 +37,7 @@ export const run = async () => {
     const api = baseApi(coolifyUrl, coolifyToken);
     console.log("secretsParsed", secretsParsed);
 
-    if (secretsParsed.length > 0) {
+    if (secretsParsed && Object.keys(secretsParsed).length > 0) {
       logMessage("Updating environment variables...");
       const secretsConverted = Object.entries(secretsParsed)
         .filter(([key]) => !secretToExclude.includes(key))
