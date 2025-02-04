@@ -1,0 +1,17 @@
+name: "Hello"
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          coolifyUrl: ${{ secrets.COOLIFY_URL }}
+          coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
+          coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
+          secrets: ${{ toJson(secrets) }}

@@ -55,8 +55,12 @@ export const run = async () => {
 
     if (secretsParsed.length > 0) {
       logMessage("Updating environment variables...");
+      const secretsConverted = convertedJsonToArray(
+        secretsParsed,
+        secretToExclude
+      );
       const body = {
-        data: convertedJsonToArray(secretsParsed, secretToExclude),
+        data: secretsConverted,
       };
       const envUpdate = await api.patch(
         `/applications/${appUuid}/envs/bulk`,
