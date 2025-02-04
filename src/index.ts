@@ -7,12 +7,13 @@ export const run = async () => {
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets");
-    const secretToExclude = getInput("secretsToExclude") || [""];
+    const secretsToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       throw new Error("Missing required environment variables");
     }
 
+    console.log("Starting deployment...", secretsToExclude);
     const api = axios.create({
       baseURL: coolifyUrl,
       headers: {
@@ -25,7 +26,7 @@ export const run = async () => {
       const secretsParsed =
         typeof secrets === "string" ? JSON.parse(secrets) : secrets;
       const convertedJsonToArray = Object.entries(secretsParsed)
-        .filter(([key]) => !secretToExclude.includes(key))
+        .filter(([key]) => !secretsToExclude.includes(key))
         .map(([key, value]) => ({
           key,
           value,
