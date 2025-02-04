@@ -21,7 +21,7 @@ export const run = async () => {
       },
     });
 
-    console.log(typeof secrets === undefined, 'CACETE');
+    console.log(secrets === 'undefined', 'CACETE');
     if (secrets !== undefined) {
       const secretsParsed =
         typeof secrets === "string" ? JSON.parse(secrets) : secrets;
