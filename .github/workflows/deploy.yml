@@ -16,4 +16,7 @@ jobs:
           coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
           coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
           secrets: ${{ secrets }}
-          secretsToExclude: '["COOLIFY_URL", "COOLIFY_TOKEN", "COOLIFY_APP_UUID"]'
+          secretsToExclude: |
+            COOLIFY_URL
+            COOLIFY_TOKEN
+            COOLIFY_APP_UUID

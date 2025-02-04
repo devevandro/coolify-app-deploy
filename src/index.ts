@@ -22,40 +22,40 @@ export const run = async () => {
       },
     });
 
-    if (secrets && secrets !== undefined) {
-      const secretsParsed =
-        typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-      const convertedJsonToArray = Object.entries(secretsParsed)
-        .filter(([key]) => !secretsToExclude.includes(key))
-        .map(([key, value]) => ({
-          key,
-          value,
-        }));
+    // if (secrets && secrets !== undefined) {
+    //   const secretsParsed =
+    //     typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+    //   const convertedJsonToArray = Object.entries(secretsParsed)
+    //     .filter(([key]) => !secretsToExclude.includes(key))
+    //     .map(([key, value]) => ({
+    //       key,
+    //       value,
+    //     }));
 
-      console.log("Updating environment variables...");
-      const body = {
-        data: convertedJsonToArray,
-      };
-      const envUpdate = await api.patch(
-        `/applications/${appUuid}/envs/bulk`,
-        body
-      );
+    //   console.log("Updating environment variables...");
+    //   const body = {
+    //     data: convertedJsonToArray,
+    //   };
+    //   const envUpdate = await api.patch(
+    //     `/applications/${appUuid}/envs/bulk`,
+    //     body
+    //   );
 
-      if (envUpdate.status !== 201) {
-        throw new Error("Failed to update environment variables");
-      }
+    //   if (envUpdate.status !== 201) {
+    //     throw new Error("Failed to update environment variables");
+    //   }
 
-      console.log("Updated environment variables successfully!");
-    }
+    //   console.log("Updated environment variables successfully!");
+    // }
 
-    console.log("Deploying application...");
-    const restart = await api.post(`/deploy?uuid=${appUuid}`);
+    // console.log("Deploying application...");
+    // const restart = await api.post(`/deploy?uuid=${appUuid}`);
 
-    if (restart.status !== 200) {
-      throw new Error("Failed to restart application");
-    }
+    // if (restart.status !== 200) {
+    //   throw new Error("Failed to restart application");
+    // }
 
-    console.log("Deploy completed successfully!");
+    // console.log("Deploy completed successfully!");
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;
