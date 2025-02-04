@@ -16,7 +16,13 @@ export const run = async () => {
     const secretsParsed =
       typeof secrets === "string" ? JSON.parse(secrets) : secrets;
 
-    const api = baseApi(coolifyUrl, coolifyToken);
+    const api = axios.create({
+      baseURL: coolifyUrl,
+      headers: {
+        Authorization: `Bearer ${coolifyToken}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (secretsParsed.length > 0) {
       logMessage("Updating environment variables...");
@@ -66,18 +72,6 @@ const convertedJsonToArray = (
       key,
       value,
     }));
-};
-
-const baseApi = (coolifyUrl: string, coolifyToken: string): AxiosInstance => {
-  const api = axios.create({
-    baseURL: coolifyUrl,
-    headers: {
-      Authorization: `Bearer ${coolifyToken}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  return api;
 };
 
 const errorConstructor = (message: string): never => {
