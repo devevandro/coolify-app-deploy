@@ -6,7 +6,7 @@ export const run = async () => {
     const coolifyUrl = getInput("coolifyUrl");
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
-    const secrets = getInput("secrets") || "{}";
+    const secrets = getInput("secrets") || "";
     const secretToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
@@ -30,7 +30,7 @@ export const run = async () => {
       },
     });
 
-    if (secretsParsed.length > 0) {
+    if (secretsParsed !== undefined) {
       console.log("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,

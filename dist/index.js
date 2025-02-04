@@ -19,7 +19,7 @@ const run = async () => {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
-        const secrets = (0, core_1.getInput)("secrets") || "{}";
+        const secrets = (0, core_1.getInput)("secrets") || "";
         const secretToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             throw new Error("Missing required environment variables");
@@ -38,7 +38,7 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        if (secretsParsed.length > 0) {
+        if (secretsParsed !== undefined) {
             console.log("Updating environment variables...");
             const body = {
                 data: convertedJsonToArray,
