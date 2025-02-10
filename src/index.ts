@@ -49,10 +49,17 @@ export const run = async () => {
 
     console.log("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
+    const data = restart.data;
+    const deploymentUuid = data.deployments[0].deployment_uuid;
+    let deploymentStatus = '';
 
     if (restart.status !== 200) {
       throw new Error("Failed to restart application");
     }
+
+    do {
+      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
+    } while (deploymentStatus !== 'finished');
 
     console.log("Deploy completed successfully!");
   } catch (error) {
