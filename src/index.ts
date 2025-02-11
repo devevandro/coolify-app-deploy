@@ -1,6 +1,13 @@
 import axios from "axios";
 import { getInput, setFailed, info } from "@actions/core";
 
+enum DEPLOYMENT_STATUS {
+  IN_PROGRESS = "in_progress",
+  FINISHED = "finished",
+  QUEUED = "queued",
+  FAILED = "failed",
+}
+
 export const run = async () => {
   try {
     const coolifyUrl = getInput("coolifyUrl");
@@ -63,8 +70,8 @@ export const run = async () => {
 
     info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
-    const deploymentUuid = restart.data.deployments[0].deployment_uuid;
-    let deploymentStatus: "in_progress" | "finished" | "queued" | "failed";
+    const deploymentUuid = restart?.data?.deployments[0]?.deployment_uuid;
+    let deploymentStatus: DEPLOYMENT_STATUS;
     let iterationCount = 0;
 
     if (restart.status !== 200) {
@@ -72,22 +79,24 @@ export const run = async () => {
     }
 
     do {
-      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
-        .status;
+      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`))?.data
+        ?.status;
 
       iterationCount++;
 
-      if (iterationCount % 5 === 0) {
+      if (iterationCount % 8 === 0) {
         info(`Deployment status... ${deploymentStatus}`);
       }
 
-      if (deploymentStatus === "failed") {
+      if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
         setFailed(new Error("Failed to deploy application") ?? "Unknown error");
       }
-    } while (deploymentStatus !== "finished");
+    } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
 
-    if (deploymentStatus === "finished") {
-      info(`Deploy completed successfully!`);
+    if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+      info(
+        `Deployment status: ${deploymentStatus}\nDeploy completed successfully!`
+      );
     }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");

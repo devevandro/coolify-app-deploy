@@ -13,8 +13,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(7269));
 const core_1 = __nccwpck_require__(7484);
+var DEPLOYMENT_STATUS;
+(function (DEPLOYMENT_STATUS) {
+    DEPLOYMENT_STATUS["IN_PROGRESS"] = "in_progress";
+    DEPLOYMENT_STATUS["FINISHED"] = "finished";
+    DEPLOYMENT_STATUS["QUEUED"] = "queued";
+    DEPLOYMENT_STATUS["FAILED"] = "failed";
+})(DEPLOYMENT_STATUS || (DEPLOYMENT_STATUS = {}));
 const run = async () => {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     try {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
@@ -59,29 +66,28 @@ const run = async () => {
         }
         (0, core_1.info)("Deploying application...");
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
-        const deploymentUuid = restart.data.deployments[0].deployment_uuid;
+        const deploymentUuid = (_e = (_d = restart === null || restart === void 0 ? void 0 : restart.data) === null || _d === void 0 ? void 0 : _d.deployments[0]) === null || _e === void 0 ? void 0 : _e.deployment_uuid;
         let deploymentStatus;
         let iterationCount = 0;
         if (restart.status !== 200) {
-            (0, core_1.setFailed)((_d = new Error("Failed to restart application")) !== null && _d !== void 0 ? _d : "Unknown error");
+            (0, core_1.setFailed)((_f = new Error("Failed to restart application")) !== null && _f !== void 0 ? _f : "Unknown error");
         }
         do {
-            deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
-                .status;
+            deploymentStatus = (_h = (_g = (await api.get(`/deployments/${deploymentUuid}`))) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.status;
             iterationCount++;
-            if (iterationCount % 5 === 0) {
+            if (iterationCount % 8 === 0) {
                 (0, core_1.info)(`Deployment status... ${deploymentStatus}`);
             }
-            if (deploymentStatus === "failed") {
-                (0, core_1.setFailed)((_e = new Error("Failed to deploy application")) !== null && _e !== void 0 ? _e : "Unknown error");
+            if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
+                (0, core_1.setFailed)((_j = new Error("Failed to deploy application")) !== null && _j !== void 0 ? _j : "Unknown error");
             }
-        } while (deploymentStatus !== "finished");
-        if (deploymentStatus === "finished") {
-            (0, core_1.info)(`Deploy completed successfully!`);
+        } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
+        if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+            (0, core_1.info)(`Deployment status: ${deploymentStatus}\nDeploy completed successfully!`);
         }
     }
     catch (error) {
-        (0, core_1.setFailed)((_f = error === null || error === void 0 ? void 0 : error.message) !== null && _f !== void 0 ? _f : "Unknown error");
+        (0, core_1.setFailed)((_k = error === null || error === void 0 ? void 0 : error.message) !== null && _k !== void 0 ? _k : "Unknown error");
         throw error;
     }
 };
