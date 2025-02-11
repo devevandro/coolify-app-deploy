@@ -59,6 +59,7 @@ export const run = async () => {
 
     do {
       deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
+      console.log(`Deployment status: ${deploymentStatus}`);
     } while (deploymentStatus !== 'finished');
 
     console.log(`Deploy completed successfully! ${deploymentStatus}`);
