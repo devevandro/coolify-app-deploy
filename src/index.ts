@@ -10,7 +10,9 @@ export const run = async () => {
     const secretsToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
-      throw new Error("Missing required environment variables");
+      setFailed(
+        new Error("Missing required environment variables") ?? "Unknown error"
+      );
     }
 
     const api = axios.create({
@@ -31,7 +33,7 @@ export const run = async () => {
           value,
         }));
 
-      console.log("Updating environment variables...");
+      info("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
       };
@@ -41,30 +43,35 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        throw new Error("Failed to update environment variables");
+        setFailed(
+          new Error("Failed to update environment variables") ?? "Unknown error"
+        );
       }
 
-      console.log("Updated environment variables successfully!");
+      info("Updated environment variables successfully!");
     }
 
-    console.log("Deploying application...");
+    info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     const data = restart.data;
     const deploymentUuid = data.deployments[0].deployment_uuid;
-    let deploymentStatus = '';
+    let deploymentStatus: "in_progress" | "finished" | "queued" | "failed";
 
     if (restart.status !== 200) {
-      throw new Error("Failed to restart application");
+      setFailed(new Error("Failed to restart application") ?? "Unknown error");
     }
 
-    console.log(`antes do DO ${deploymentStatus}`);
     do {
-      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
-      console.log(`Deployment status: ${deploymentStatus}`);
-    } while (deploymentStatus !== 'finished');
+      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
+        .status;
 
-    if (deploymentStatus === 'finished') {
-      info(`Deploy completed successfully! ${deploymentStatus}`);
+      if (deploymentStatus === "failed") {
+        setFailed(new Error("Failed to deploy application") ?? "Unknown error");
+      }
+    } while (deploymentStatus !== "finished");
+
+    if (deploymentStatus === "finished") {
+      info(`Deploy completed successfully!`);
     }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");

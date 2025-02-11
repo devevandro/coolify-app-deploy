@@ -14,7 +14,7 @@ exports.run = void 0;
 const axios_1 = __importDefault(__nccwpck_require__(7269));
 const core_1 = __nccwpck_require__(7484);
 const run = async () => {
-    var _a;
+    var _a, _b, _c, _d, _e;
     try {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
@@ -22,7 +22,7 @@ const run = async () => {
         const secrets = (0, core_1.getInput)("secrets");
         const secretsToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
         if (!coolifyUrl || !coolifyToken || !appUuid) {
-            throw new Error("Missing required environment variables");
+            (0, core_1.setFailed)((_a = new Error("Missing required environment variables")) !== null && _a !== void 0 ? _a : "Unknown error");
         }
         const api = axios_1.default.create({
             baseURL: coolifyUrl,
@@ -39,35 +39,37 @@ const run = async () => {
                 key,
                 value,
             }));
-            console.log("Updating environment variables...");
+            (0, core_1.info)("Updating environment variables...");
             const body = {
                 data: convertedJsonToArray,
             };
             const envUpdate = await api.patch(`/applications/${appUuid}/envs/bulk`, body);
             if (envUpdate.status !== 201) {
-                throw new Error("Failed to update environment variables");
+                (0, core_1.setFailed)((_b = new Error("Failed to update environment variables")) !== null && _b !== void 0 ? _b : "Unknown error");
             }
-            console.log("Updated environment variables successfully!");
+            (0, core_1.info)("Updated environment variables successfully!");
         }
-        console.log("Deploying application...");
+        (0, core_1.info)("Deploying application...");
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
         const data = restart.data;
         const deploymentUuid = data.deployments[0].deployment_uuid;
-        let deploymentStatus = '';
+        let deploymentStatus;
         if (restart.status !== 200) {
-            throw new Error("Failed to restart application");
+            (0, core_1.setFailed)((_c = new Error("Failed to restart application")) !== null && _c !== void 0 ? _c : "Unknown error");
         }
-        console.log(`antes do DO ${deploymentStatus}`);
         do {
-            deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
-            console.log(`Deployment status: ${deploymentStatus}`);
-        } while (deploymentStatus !== 'finished');
-        if (deploymentStatus === 'finished') {
-            (0, core_1.info)(`Deploy completed successfully! ${deploymentStatus}`);
+            deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
+                .status;
+            if (deploymentStatus === "failed") {
+                (0, core_1.setFailed)((_d = new Error("Failed to deploy application")) !== null && _d !== void 0 ? _d : "Unknown error");
+            }
+        } while (deploymentStatus !== "finished");
+        if (deploymentStatus === "finished") {
+            (0, core_1.info)(`Deploy completed successfully!`);
         }
     }
     catch (error) {
-        (0, core_1.setFailed)((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Unknown error");
+        (0, core_1.setFailed)((_e = error === null || error === void 0 ? void 0 : error.message) !== null && _e !== void 0 ? _e : "Unknown error");
         throw error;
     }
 };
