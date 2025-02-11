@@ -38,7 +38,6 @@ export const run = async () => {
       const secretsParsed =
         typeof secrets === "string" ? JSON.parse(secrets) : secrets;
       const convertedJsonToArray = Object.entries(secretsParsed)
-        .filter(([key]) => !secretsToExclude.includes(key))
         .map(([key, value]) => ({
           key,
           value,
@@ -59,7 +58,7 @@ export const run = async () => {
         );
       } */
 
-      info({...secretsParsed});
+      console.log(convertedJsonToArray);
     }
 
     /* info("Deploying application...");
