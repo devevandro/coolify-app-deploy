@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getInput, setFailed, info } from "@actions/core";
+import { getInput, setFailed } from "@actions/core";
 
 export const run = async () => {
   try {
@@ -8,8 +8,6 @@ export const run = async () => {
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets");
     const secretsToExclude = getInput("secretsToExclude") || [""];
-    info (coolifyToken);
-    info (appUuid);
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       throw new Error("Missing required environment variables");
@@ -33,7 +31,7 @@ export const run = async () => {
           value,
         }));
 
-      info("Updating environment variables...");
+      console.log("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
       };
@@ -43,35 +41,29 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        setFailed(
-          new Error("Failed to update environment variables") ?? "Unknown error"
-        );
+        throw new Error("Failed to update environment variables");
       }
 
-      info("Updated environment variables successfully!");
+      console.log("Updated environment variables successfully!");
     }
 
-    info(`Deploying application... ${appUuid}`);
+    console.log("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
+    const data = restart.data;
+    const deploymentUuid = data.deployments[0].deployment_uuid;
+    let deploymentStatus = '';
 
-    if (restart.data.deployments[0].deployment_uuid !== "")
-      info(`antes do DO ${appUuid}`);
-    // const data = restart.data;
-    // const deploymentUuid = data.deployments[0].deployment_uuid;
-    // let deploymentStatus = '';
+    if (restart.status !== 200) {
+      throw new Error("Failed to restart application");
+    }
 
-    // if (restart.status !== 200) {
-    //   throw new Error("Failed to restart application");
-    // }
+    console.log(`antes do DO ${deploymentStatus}`);
+    do {
+      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
+      console.log(`Deployment status: ${deploymentStatus}`);
+    } while (deploymentStatus !== 'finished');
 
-    // do {
-    // const response = await api.get(`/deployments/${deploymentUuid}`);
-    // console.log(`API Response:`, response.data);
-    // deploymentStatus = response.data.status;
-    // console.log(`Deployment status: ${deploymentStatus}`);
-    // } while (deploymentStatus !== 'finished');
-
-    info(`Deploy completed successfully!`);
+    console.log(`Deploy completed successfully! ${deploymentStatus}`);
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;

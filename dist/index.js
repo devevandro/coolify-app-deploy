@@ -51,10 +51,18 @@ const run = async () => {
         }
         console.log("Deploying application...");
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
+        const data = restart.data;
+        const deploymentUuid = data.deployments[0].deployment_uuid;
+        let deploymentStatus = '';
         if (restart.status !== 200) {
             throw new Error("Failed to restart application");
         }
-        console.log("Deploy completed successfully!");
+        console.log(`antes do DO ${deploymentStatus}`);
+        do {
+            deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
+            console.log(`Deployment status: ${deploymentStatus}`);
+        } while (deploymentStatus !== 'finished');
+        console.log(`Deploy completed successfully! ${deploymentStatus}`);
     }
     catch (error) {
         (0, core_1.setFailed)((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Unknown error");
