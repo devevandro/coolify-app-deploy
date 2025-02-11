@@ -31,7 +31,7 @@ export const run = async () => {
           value,
         }));
 
-      console.log("Updating environment variables...");
+      info("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
       };
@@ -41,15 +41,19 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        throw new Error("Failed to update environment variables");
+        setFailed(
+          new Error("Failed to update environment variables") ?? "Unknown error"
+        );
       }
 
-      console.log("Updated environment variables successfully!");
+      info("Updated environment variables successfully!");
     }
 
-    info(`Deploying application... ${appUuid}`,);
+    info(`Deploying application... ${appUuid}`);
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
-    info(`antes do DO ${appUuid}`);
+
+    if (restart.data.deployments[0].deployment_uuid !== "")
+      info(`antes do DO ${appUuid}`);
     // const data = restart.data;
     // const deploymentUuid = data.deployments[0].deployment_uuid;
     // let deploymentStatus = '';
@@ -59,10 +63,10 @@ export const run = async () => {
     // }
 
     // do {
-      // const response = await api.get(`/deployments/${deploymentUuid}`);
-      // console.log(`API Response:`, response.data);
-      // deploymentStatus = response.data.status;
-      // console.log(`Deployment status: ${deploymentStatus}`);
+    // const response = await api.get(`/deployments/${deploymentUuid}`);
+    // console.log(`API Response:`, response.data);
+    // deploymentStatus = response.data.status;
+    // console.log(`Deployment status: ${deploymentStatus}`);
     // } while (deploymentStatus !== 'finished');
 
     info(`Deploy completed successfully!`);
