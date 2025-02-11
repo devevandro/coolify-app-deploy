@@ -64,6 +64,7 @@ export const run = async () => {
     do {
       deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
         .status;
+      info(`Deployment status: ${deploymentStatus}`);
 
       if (deploymentStatus === "failed") {
         setFailed(new Error("Failed to deploy application") ?? "Unknown error");
