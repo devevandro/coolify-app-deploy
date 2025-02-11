@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getInput, setFailed } from "@actions/core";
+import { getInput, setFailed, info } from "@actions/core";
 
 export const run = async () => {
   try {
@@ -49,7 +49,7 @@ export const run = async () => {
 
     console.log("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
-    console.log(`antes do DO ${restart}`);
+    info(`antes do DO ${restart}`);
     const data = restart.data;
     const deploymentUuid = data.deployments[0].deployment_uuid;
     let deploymentStatus = '';
