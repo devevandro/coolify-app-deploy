@@ -65,6 +65,7 @@ export const run = async () => {
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     const deploymentUuid = restart.data.deployments[0].deployment_uuid;
     let deploymentStatus: "in_progress" | "finished" | "queued" | "failed";
+    let iterationCount = 0;
 
     if (restart.status !== 200) {
       setFailed(new Error("Failed to restart application") ?? "Unknown error");
@@ -74,15 +75,19 @@ export const run = async () => {
       deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
         .status;
 
+      iterationCount++;
+
+      if (iterationCount % 5 === 0) {
+        info(`Deployment status... ${deploymentStatus}`);
+      }
+
       if (deploymentStatus === "failed") {
         setFailed(new Error("Failed to deploy application") ?? "Unknown error");
       }
     } while (deploymentStatus !== "finished");
 
     if (deploymentStatus === "finished") {
-      info(
-        `Deployment status: ${deploymentStatus}\nDeploy completed successfully!`
-      );
+      info(`Deploy completed successfully!`);
     }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");

@@ -61,18 +61,23 @@ const run = async () => {
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
         const deploymentUuid = restart.data.deployments[0].deployment_uuid;
         let deploymentStatus;
+        let iterationCount = 0;
         if (restart.status !== 200) {
             (0, core_1.setFailed)((_d = new Error("Failed to restart application")) !== null && _d !== void 0 ? _d : "Unknown error");
         }
         do {
             deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
                 .status;
+            iterationCount++;
+            if (iterationCount % 5 === 0) {
+                (0, core_1.info)(`Deployment status... ${deploymentStatus}`);
+            }
             if (deploymentStatus === "failed") {
                 (0, core_1.setFailed)((_e = new Error("Failed to deploy application")) !== null && _e !== void 0 ? _e : "Unknown error");
             }
         } while (deploymentStatus !== "finished");
         if (deploymentStatus === "finished") {
-            (0, core_1.info)(`Deployment status: ${deploymentStatus}\nDeploy completed successfully!`);
+            (0, core_1.info)(`Deploy completed successfully!`);
         }
     }
     catch (error) {
