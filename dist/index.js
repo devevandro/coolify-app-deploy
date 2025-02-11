@@ -41,8 +41,8 @@ const run = async () => {
         }
         if (secrets && secrets !== undefined) {
             const secretsParsed = typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-            const convertedJsonToArray = Object.entries(secretsParsed);
-            (0, core_1.info)(convertedJsonToArray.toString());
+            // const convertedJsonToArray = Object.entries(secretsParsed)
+            (0, core_1.info)(secretsParsed);
             /*
               .filter(([key]) => !secretsToExclude.includes(key))
               .map(([key, value]) => ({
