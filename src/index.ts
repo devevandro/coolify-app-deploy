@@ -29,8 +29,7 @@ export const run = async () => {
       info("Authentication successful!");
     } catch (error) {
       setFailed(
-        new Error("Error when performing authentication!") ??
-          "Unknown error"
+        new Error("Error when performing authentication!") ?? "Unknown error"
       );
     }
 
@@ -64,8 +63,7 @@ export const run = async () => {
 
     info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
-    const data = restart.data;
-    const deploymentUuid = data.deployments[0].deployment_uuid;
+    const deploymentUuid = restart.data.deployments[0].deployment_uuid;
     let deploymentStatus: "in_progress" | "finished" | "queued" | "failed";
 
     if (restart.status !== 200) {
@@ -75,7 +73,6 @@ export const run = async () => {
     do {
       deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data
         .status;
-      info(`Deployment status: ${deploymentStatus}`);
 
       if (deploymentStatus === "failed") {
         setFailed(new Error("Failed to deploy application") ?? "Unknown error");
@@ -83,7 +80,9 @@ export const run = async () => {
     } while (deploymentStatus !== "finished");
 
     if (deploymentStatus === "finished") {
-      info(`Deploy completed successfully!`);
+      info(
+        `Deployment status: ${deploymentStatus}\nDeploy completed successfully!`
+      );
     }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
