@@ -53,9 +53,9 @@ export const run = async () => {
     const deploymentUuid = data.deployments[0].deployment_uuid;
     let deploymentStatus = '';
 
-    if (restart.status !== 200) {
-      throw new Error("Failed to restart application");
-    }
+    // if (restart.status !== 200) {
+    //   throw new Error("Failed to restart application");
+    // }
 
     console.log(`antes do DO ${deploymentStatus}`);
     // do {
