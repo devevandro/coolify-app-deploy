@@ -6,8 +6,8 @@ export const run = async () => {
     const coolifyUrl = getInput("coolifyUrl");
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
-    const secrets = getInput("secrets");
-    const secretsToExclude = getInput("secretsToExclude");
+    const secrets = getInput("secrets") || "{}";
+    const secretsToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       setFailed(
@@ -22,6 +22,17 @@ export const run = async () => {
         "Content-Type": "application/json",
       },
     });
+
+    try {
+      const urlReplaced = coolifyUrl.replace("v1", "health");
+      await api.get(urlReplaced); // Substitua por um endpoint válido da API
+      info("Authentication successful!");
+    } catch (error) {
+      setFailed(
+        new Error("Error when performing authentication! Check Bearer token") ??
+          "Unknown error"
+      );
+    }
 
     if (secrets && secrets !== undefined) {
       const secretsParsed =
