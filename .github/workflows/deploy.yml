@@ -1,18 +1,20 @@
-name: "Teste Deploy"
+name: Coolify Deploy
 
 on:
   push:
     branches: [feat/status-deploy]
+  workflow_dispatch:
 
 jobs:
-  teste-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    environment: stage
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./
+      - name: GitHub Action - Deploy and Update ENVs on Coolify
+        uses: devevandro/coolify-app-deploy@v0.0.1
         with:
           coolifyUrl: ${{ secrets.COOLIFY_URL }}
           coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
           coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
-          secrets: ${{ secrets }}
-          secretsToExclude: '["COOLIFY_URL" ,"COOLIFY_TOKEN" ,"COOLIFY_APP_UUID, "github_token"]'
+          secrets: ${{ toJson(secrets) }}
+          secretsToExclude: '["COOLIFY_URL" ,"COOLIFY_TOKEN" ,"COOLIFY_APP_UUID", "github_token"]'
