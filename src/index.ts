@@ -49,6 +49,7 @@ export const run = async () => {
 
     console.log("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
+    console.log(`antes do DO ${restart}`);
     const data = restart.data;
     const deploymentUuid = data.deployments[0].deployment_uuid;
     let deploymentStatus = '';
@@ -57,7 +58,6 @@ export const run = async () => {
     //   throw new Error("Failed to restart application");
     // }
 
-    console.log(`antes do DO ${restart}`);
     // do {
       const response = await api.get(`/deployments/${deploymentUuid}`);
       console.log(`API Response:`, response.data);
