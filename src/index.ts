@@ -1,16 +1,25 @@
 import axios from "axios";
-import { getInput, setFailed } from "@actions/core";
+import { getInput, setFailed, info } from "@actions/core";
+
+enum DEPLOYMENT_STATUS {
+  IN_PROGRESS = "in_progress",
+  FINISHED = "finished",
+  QUEUED = "queued",
+  FAILED = "failed",
+}
 
 export const run = async () => {
   try {
     const coolifyUrl = getInput("coolifyUrl");
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
-    const secrets = getInput("secrets");
+    const secrets = getInput("secrets") || "{}";
     const secretsToExclude = getInput("secretsToExclude") || [""];
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
-      throw new Error("Missing required environment variables");
+      setFailed(
+        new Error("Missing required environment variables") ?? "Unknown error"
+      );
     }
 
     const api = axios.create({
@@ -20,6 +29,16 @@ export const run = async () => {
         "Content-Type": "application/json",
       },
     });
+
+    try {
+      const urlReplaced = coolifyUrl.replace("v1", "health");
+      await api.get(urlReplaced);
+      info("Authentication successful!");
+    } catch (error) {
+      setFailed(
+        new Error("Error when performing authentication!") ?? "Unknown error"
+      );
+    }
 
     if (secrets && secrets !== undefined) {
       const secretsParsed =
@@ -31,7 +50,7 @@ export const run = async () => {
           value,
         }));
 
-      console.log("Updating environment variables...");
+      info("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
       };
@@ -41,20 +60,44 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        throw new Error("Failed to update environment variables");
+        setFailed(
+          new Error("Failed to update environment variables") ?? "Unknown error"
+        );
       }
 
-      console.log("Updated environment variables successfully!");
+      info("Updated environment variables successfully!");
     }
 
-    console.log("Deploying application...");
+    info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
+    const deploymentUuid = restart?.data?.deployments[0]?.deployment_uuid;
+    let deploymentStatus: DEPLOYMENT_STATUS;
+    let iterationCount = 0;
 
     if (restart.status !== 200) {
-      throw new Error("Failed to restart application");
+      setFailed(new Error("Failed to restart application") ?? "Unknown error");
     }
 
-    console.log("Deploy completed successfully!");
+    do {
+      deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`))?.data
+        ?.status;
+
+      iterationCount++;
+
+      if (iterationCount % 8 === 0) {
+        info(`Deployment status... ${deploymentStatus}`);
+      }
+
+      if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
+        setFailed(new Error("Failed to deploy application") ?? "Unknown error");
+      }
+    } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
+
+    if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+      info(
+        `Deployment status: ${deploymentStatus}\nDeploy completed successfully!`
+      );
+    }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;
