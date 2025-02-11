@@ -15,4 +15,3 @@ jobs:
           coolifyUrl: ${{ secrets.COOLIFY_URL }}
           coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
           coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
-          secrets: ${{ secrets }}
