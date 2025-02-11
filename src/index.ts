@@ -47,7 +47,7 @@ export const run = async () => {
       console.log("Updated environment variables successfully!");
     }
 
-    console.log("Deploying application...");
+    info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     info(`antes do DO ${appUuid}`);
     // const data = restart.data;
