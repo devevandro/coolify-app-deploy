@@ -29,7 +29,7 @@ export const run = async () => {
       info("Authentication successful!");
     } catch (error) {
       setFailed(
-        new Error("Error when performing authentication! Check Bearer token") ??
+        new Error("Error when performing authentication!") ??
           "Unknown error"
       );
     }
@@ -37,34 +37,32 @@ export const run = async () => {
     if (secrets && secrets !== undefined) {
       const secretsParsed =
         typeof secrets === "string" ? JSON.parse(secrets) : secrets;
-      // const convertedJsonToArray = Object.entries(secretsParsed)
-      info(secretsParsed);
-      /* 
+      const convertedJsonToArray = Object.entries(secretsParsed)
         .filter(([key]) => !secretsToExclude.includes(key))
         .map(([key, value]) => ({
           key,
           value,
-        })); */
+        }));
 
-     /*  info("Updating environment variables...");
+      info("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
       };
       const envUpdate = await api.patch(
         `/applications/${appUuid}/envs/bulk`,
         body
-      ); */
+      );
 
-      /* if (envUpdate.status !== 201) {
+      if (envUpdate.status !== 201) {
         setFailed(
           new Error("Failed to update environment variables") ?? "Unknown error"
         );
-      } */
+      }
 
       info("Updated environment variables successfully!");
     }
 
-    /* info("Deploying application...");
+    info("Deploying application...");
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     const data = restart.data;
     const deploymentUuid = data.deployments[0].deployment_uuid;
@@ -86,7 +84,7 @@ export const run = async () => {
 
     if (deploymentStatus === "finished") {
       info(`Deploy completed successfully!`);
-    } */
+    }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;
