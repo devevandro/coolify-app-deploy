@@ -59,7 +59,7 @@ export const run = async () => {
         );
       } */
 
-      info(convertedJsonToArray.toString());
+      info(secretsParsed);
     }
 
     /* info("Deploying application...");
