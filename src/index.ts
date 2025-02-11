@@ -57,7 +57,7 @@ export const run = async () => {
     //   throw new Error("Failed to restart application");
     // }
 
-    console.log(`antes do DO ${deploymentUuid}`);
+    console.log(`antes do DO ${restart}`);
     // do {
       const response = await api.get(`/deployments/${deploymentUuid}`);
       console.log(`API Response:`, response.data);
