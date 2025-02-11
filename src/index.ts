@@ -59,7 +59,7 @@ export const run = async () => {
         );
       } */
 
-      info(secretsParsed);
+      info({...secretsParsed});
     }
 
     /* info("Deploying application...");

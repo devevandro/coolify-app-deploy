@@ -60,7 +60,7 @@ const run = async () => {
                 new Error("Failed to update environment variables") ?? "Unknown error"
               );
             } */
-            (0, core_1.info)(secretsParsed);
+            (0, core_1.info)({ ...secretsParsed });
         }
         /* info("Deploying application...");
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
