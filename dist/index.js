@@ -62,7 +62,9 @@ const run = async () => {
             deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`)).data.status;
             console.log(`Deployment status: ${deploymentStatus}`);
         } while (deploymentStatus !== 'finished');
-        console.log(`Deploy completed successfully! ${deploymentStatus}`);
+        if (deploymentStatus === 'finished') {
+            (0, core_1.info)(`Deploy completed successfully! ${deploymentStatus}`);
+        }
     }
     catch (error) {
         (0, core_1.setFailed)((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : "Unknown error");

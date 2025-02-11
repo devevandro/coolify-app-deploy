@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getInput, setFailed } from "@actions/core";
+import { getInput, setFailed, info } from "@actions/core";
 
 export const run = async () => {
   try {
@@ -63,7 +63,9 @@ export const run = async () => {
       console.log(`Deployment status: ${deploymentStatus}`);
     } while (deploymentStatus !== 'finished');
 
-    console.log(`Deploy completed successfully! ${deploymentStatus}`);
+    if (deploymentStatus === 'finished') {
+      info(`Deploy completed successfully! ${deploymentStatus}`);
+    }
   } catch (error) {
     setFailed((error as Error)?.message ?? "Unknown error");
     throw error;
