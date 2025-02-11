@@ -7,7 +7,6 @@ on:
 jobs:
   teste-deploy:
     runs-on: ubuntu-latest
-    environment: stage
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -15,5 +14,5 @@ jobs:
           coolifyUrl: ${{ secrets.COOLIFY_URL }}
           coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
           coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
-          secrets: ${{ toJson(secrets) }}
+          secrets: ${{ secrets }}
           secretsToExclude: '["COOLIFY_URL" ,"COOLIFY_TOKEN" ,"COOLIFY_APP_UUID, "github_token"]'
