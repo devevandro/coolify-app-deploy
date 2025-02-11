@@ -7,7 +7,7 @@ export const run = async () => {
     const coolifyToken = getInput("coolifyToken");
     const appUuid = getInput("coolifyAppUuid");
     const secrets = getInput("secrets");
-    const secretsToExclude = getInput("secretsToExclude") || [""];
+    const secretsToExclude = getInput("secretsToExclude");
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       setFailed(
