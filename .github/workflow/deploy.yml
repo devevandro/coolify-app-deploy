@@ -2,7 +2,7 @@ name: Coolify Deploy
 
 on:
   push:
-    branches: [stage]
+    branches: [fix/too-many-requests]
   workflow_dispatch:
 
 jobs:
