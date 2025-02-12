@@ -81,7 +81,6 @@ export const run = async () => {
     do {
       deploymentStatus = (await api.get(`/deployments/${deploymentUuid}`))?.data
         ?.status;
-
       iterationCount++;
 
       if (iterationCount % 8 === 0) {
@@ -91,6 +90,14 @@ export const run = async () => {
       if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
         setFailed(new Error("Failed to deploy application") ?? "Unknown error");
       }
+
+      const baseDelay = 2000;
+      const maxDelay = 30000;
+      const delay =
+        Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
+        (0.8 + Math.random() * 0.4);
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
     } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
 
     if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
