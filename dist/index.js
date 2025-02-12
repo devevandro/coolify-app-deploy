@@ -26,8 +26,8 @@ const run = async () => {
         const coolifyUrl = (0, core_1.getInput)("coolifyUrl");
         const coolifyToken = (0, core_1.getInput)("coolifyToken");
         const appUuid = (0, core_1.getInput)("coolifyAppUuid");
-        const secrets = (0, core_1.getInput)("secrets") || "{}";
-        const secretsToExclude = (0, core_1.getInput)("secretsToExclude") || [""];
+        const secrets = (0, core_1.getInput)("secrets");
+        const secretsToExclude = (0, core_1.getInput)("secretsToExclude");
         if (!coolifyUrl || !coolifyToken || !appUuid) {
             (0, core_1.setFailed)((_a = new Error("Missing required environment variables")) !== null && _a !== void 0 ? _a : "Unknown error");
         }
@@ -81,6 +81,11 @@ const run = async () => {
             if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
                 (0, core_1.setFailed)((_j = new Error("Failed to deploy application")) !== null && _j !== void 0 ? _j : "Unknown error");
             }
+            const baseDelay = 2000;
+            const maxDelay = 30000;
+            const delay = Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
+                (0.8 + Math.random() * 0.4);
+            await new Promise((resolve) => setTimeout(resolve, delay));
         } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
         if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
             (0, core_1.info)(`Deployment status: ${deploymentStatus}\nDeploy completed successfully!`);
