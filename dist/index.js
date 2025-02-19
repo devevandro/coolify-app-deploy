@@ -114,7 +114,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateHour = void 0;
 const generateHour = () => {
     const date = new Date();
-    return [(Number(date.getHours()) - 3), date.getMinutes(), date.getSeconds()]
+    return [date.getHours(), date.getMinutes(), date.getSeconds()]
         .map((unit) => String(unit).padStart(2, "0"))
         .join(":");
 };
