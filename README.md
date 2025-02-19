@@ -37,7 +37,7 @@ jobs:
     environment: stage
     steps:
       - name: GitHub Action - Deploy and Update ENVs on Coolify
-        uses: devevandro/coolify-app-deploy@v5
+        uses: devevandro/coolify-app-deploy@v6
         with:
           coolify_url: ${{ secrets.COOLIFY_URL }}
           coolify_token: ${{ secrets.COOLIFY_TOKEN }}
