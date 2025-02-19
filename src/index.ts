@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getInput, setFailed, info } from "@actions/core";
+import { generateHour } from "./utils";
 
 enum DEPLOYMENT_STATUS {
   IN_PROGRESS = "in_progress",
@@ -10,11 +11,11 @@ enum DEPLOYMENT_STATUS {
 
 export const run = async () => {
   try {
-    const coolifyUrl = getInput("coolifyUrl");
-    const coolifyToken = getInput("coolifyToken");
-    const appUuid = getInput("coolifyAppUuid");
+    const coolifyUrl = getInput("coolify_url");
+    const coolifyToken = getInput("coolify_token");
+    const appUuid = getInput("coolify_app_uuid");
     const secrets = getInput("secrets");
-    const secretsToExclude = getInput("secretsToExclude");
+    const secretsToExclude = getInput("secrets_to_exclude");
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       setFailed(
@@ -30,13 +31,15 @@ export const run = async () => {
       },
     });
 
+    const hour = generateHour();
     try {
       const urlReplaced = coolifyUrl.replace("v1", "health");
       await api.get(urlReplaced);
-      info("Authentication successful!");
+      info(`${hour} INFO: Authentication successful!`);
     } catch (error) {
       setFailed(
-        new Error("Error when performing authentication!") ?? "Unknown error"
+        new Error(`${hour} INFO: Error when performing authentication!`) ??
+          "Unknown error"
       );
     }
 
@@ -48,8 +51,10 @@ export const run = async () => {
         .map(([key, value]) => ({
           key,
           value,
+          is_literal: key === "MYSQL_PASSWORD" ? true : false,
         }));
 
+      const hour = generateHour();
       info("Updating environment variables...");
       const body = {
         data: convertedJsonToArray,
@@ -61,11 +66,12 @@ export const run = async () => {
 
       if (envUpdate.status !== 201) {
         setFailed(
-          new Error("Failed to update environment variables") ?? "Unknown error"
+          new Error(`${hour} INFO: Failed to update environment variables`) ??
+            "Unknown error"
         );
       }
 
-      info("Updated environment variables successfully!");
+      info(`${hour} INFO: Updated environment variables successfully!`);
     }
 
     info("Deploying application...");
@@ -75,7 +81,10 @@ export const run = async () => {
     let iterationCount = 0;
 
     if (restart.status !== 200) {
-      setFailed(new Error("Failed to restart application") ?? "Unknown error");
+      setFailed(
+        new Error(`${hour} INFO: Failed to restart application`) ??
+          "Unknown error"
+      );
     }
 
     do {
@@ -84,11 +93,15 @@ export const run = async () => {
       iterationCount++;
 
       if (iterationCount % 8 === 0) {
-        info(`Deployment status... ${deploymentStatus}`);
+        const hour = generateHour();
+        info(`${hour} INFO: Deployment status ${deploymentStatus}`);
       }
 
       if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
-        setFailed(new Error("Failed to deploy application") ?? "Unknown error");
+        setFailed(
+          new Error(`${hour} INFO: Failed to deploy application`) ??
+            "Unknown error"
+        );
       }
 
       const baseDelay = 2000;
@@ -101,8 +114,9 @@ export const run = async () => {
     } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
 
     if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+      const hour = generateHour();
       info(
-        `Deployment status: ${deploymentStatus}\nDeploy completed successfully!`
+        `${hour} INFO: Deployment status: ${deploymentStatus}\nApplication deployed successfully! 🚀`
       );
     }
   } catch (error) {

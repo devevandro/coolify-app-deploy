@@ -3,19 +3,19 @@ author: devevandro
 description: Deploy and Update ENVs on Coolify
 
 inputs:
-  coolifyUrl:
+  coolify_url:
     description: 'Coolify URL'
     required: true
-  coolifyToken:
+  coolify_token:
     description: 'Coolify Access Token'
     required: true
-  coolifyAppUuid:
+  coolify_app_uuid:
     description: 'Coolify App UUID'
     required: true
   secrets:
     description: 'Github secrets to be updated on Coolify'
     required: false
-  secretsToExclude:
+  secrets_to_exclude:
     description: 'Github secrets to be excluded from the update on Coolify'
     required: false
 

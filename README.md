@@ -37,11 +37,11 @@ jobs:
     environment: stage
     steps:
       - name: GitHub Action - Deploy and Update ENVs on Coolify
-        uses: devevandro/coolify-app-deploy@v0.0.3
+        uses: devevandro/coolify-app-deploy@v5
         with:
-          coolifyUrl: ${{ secrets.COOLIFY_URL }}
-          coolifyToken: ${{ secrets.COOLIFY_TOKEN }}
-          coolifyAppUuid: ${{ secrets.COOLIFY_APP_UUID }}
+          coolify_url: ${{ secrets.COOLIFY_URL }}
+          coolify_token: ${{ secrets.COOLIFY_TOKEN }}
+          coolify_app_uuid: ${{ secrets.COOLIFY_APP_UUID }}
           secrets: ${{ toJson(secrets) }} // not required
-          secretsToExclude: '["COOLIFY_URL" ,"COOLIFY_TOKEN" ,"COOLIFY_APP_UUID", "github_token"]' // not required, use with the secrets
+          secrets_to_exclude: '["COOLIFY_URL" ,"COOLIFY_TOKEN" ,"COOLIFY_APP_UUID", "github_token"]' // not required, use with the secrets
 ````
