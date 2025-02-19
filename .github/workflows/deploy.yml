@@ -1,0 +1,19 @@
+name: Coolify Deploy
+
+on:
+  push:
+    branches: [stage]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: stage
+    steps:
+      - name: GitHub Action - Deploy and Update ENVs on Coolify
+        uses: ./
+        with:
+          coolify_url: ${{ secrets.COOLIFY_URL }}
+          coolify_token: ${{ secrets.COOLIFY_TOKEN }}
+          coolify_app_uuid: ${{ secrets.COOLIFY_APP_UUID }}
+          secrets: ${{ toJson(secrets) }}
