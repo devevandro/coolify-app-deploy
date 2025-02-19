@@ -85,13 +85,13 @@ const run = async () => {
                 (0, core_1.setFailed)((_j = new Error(`${hour} INFO: Failed to deploy application`)) !== null && _j !== void 0 ? _j : "Unknown error");
             }
             const baseDelay = 2000;
-            const maxDelay = 20000;
+            const maxDelay = 25000;
             const delay = Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
                 (0.8 + Math.random() * 0.4);
             await new Promise((resolve) => setTimeout(resolve, delay));
         } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
         if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
-            (0, core_1.info)(`${hour} INFO: Deployment status: ${deploymentStatus}\nApplication deployed successfully! 🚀`);
+            (0, core_1.info)(`${hour} INFO: Deployment status: ${deploymentStatus}\n${hour} INFO: Application deployed successfully! 🚀`);
         }
     }
     catch (error) {

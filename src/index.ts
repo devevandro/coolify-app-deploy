@@ -103,7 +103,7 @@ export const run = async () => {
       }
 
       const baseDelay = 2000;
-      const maxDelay = 20000;
+      const maxDelay = 25000;
       const delay =
         Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
         (0.8 + Math.random() * 0.4);
@@ -113,7 +113,7 @@ export const run = async () => {
 
     if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
       info(
-        `${hour} INFO: Deployment status: ${deploymentStatus}\nApplication deployed successfully! 🚀`
+        `${hour} INFO: Deployment status: ${deploymentStatus}\n${hour} INFO: Application deployed successfully! 🚀`
       );
     }
   } catch (error) {
