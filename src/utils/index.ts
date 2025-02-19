@@ -1,10 +1,6 @@
-export const generateHour = () => {
+export const generateHour = (): string => {
   const date = new Date();
-  const hours = date.getHours() < 10 ? date.getHours() : date.getHours();
-  const minutes =
-    date.getMinutes() < 10 ? date.getMinutes() : date.getMinutes();
-  const seconds =
-    date.getSeconds() < 10 ? date.getSeconds() : date.getSeconds();
-
-  return `${hours}:${minutes}:${seconds}`;
+  return [(Number(date.getHours()) - 3), date.getMinutes(), date.getSeconds()]
+    .map((unit) => String(unit).padStart(2, "0"))
+    .join(":");
 };

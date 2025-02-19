@@ -11,6 +11,7 @@ enum DEPLOYMENT_STATUS {
 
 export const run = async () => {
   try {
+    const hour = generateHour();
     const coolifyUrl = getInput("coolify_url");
     const coolifyToken = getInput("coolify_token");
     const appUuid = getInput("coolify_app_uuid");
@@ -19,7 +20,7 @@ export const run = async () => {
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       setFailed(
-        new Error("Missing required environment variables") ?? "Unknown error"
+        new Error(`${hour} INFO: Missing required environment variables`) ?? "Unknown error"
       );
     }
 
@@ -31,7 +32,6 @@ export const run = async () => {
       },
     });
 
-    const hour = generateHour();
     try {
       const urlReplaced = coolifyUrl.replace("v1", "health");
       await api.get(urlReplaced);
@@ -54,8 +54,7 @@ export const run = async () => {
           is_literal: key === "MYSQL_PASSWORD" ? true : false,
         }));
 
-      const hour = generateHour();
-      info("Updating environment variables...");
+      info(`${hour} INFO: Updating environment variables...`);
       const body = {
         data: convertedJsonToArray,
       };
@@ -74,7 +73,7 @@ export const run = async () => {
       info(`${hour} INFO: Updated environment variables successfully!`);
     }
 
-    info("Deploying application...");
+    info(`${hour} INFO: Deploying application...`);
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     const deploymentUuid = restart?.data?.deployments[0]?.deployment_uuid;
     let deploymentStatus: DEPLOYMENT_STATUS;
@@ -93,7 +92,6 @@ export const run = async () => {
       iterationCount++;
 
       if (iterationCount % 8 === 0) {
-        const hour = generateHour();
         info(`${hour} INFO: Deployment status ${deploymentStatus}`);
       }
 
@@ -105,7 +103,7 @@ export const run = async () => {
       }
 
       const baseDelay = 2000;
-      const maxDelay = 30000;
+      const maxDelay = 20000;
       const delay =
         Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
         (0.8 + Math.random() * 0.4);
@@ -114,7 +112,6 @@ export const run = async () => {
     } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
 
     if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
-      const hour = generateHour();
       info(
         `${hour} INFO: Deployment status: ${deploymentStatus}\nApplication deployed successfully! 🚀`
       );

@@ -24,13 +24,14 @@ var DEPLOYMENT_STATUS;
 const run = async () => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     try {
+        const hour = (0, utils_1.generateHour)();
         const coolifyUrl = (0, core_1.getInput)("coolify_url");
         const coolifyToken = (0, core_1.getInput)("coolify_token");
         const appUuid = (0, core_1.getInput)("coolify_app_uuid");
         const secrets = (0, core_1.getInput)("secrets");
         const secretsToExclude = (0, core_1.getInput)("secrets_to_exclude");
         if (!coolifyUrl || !coolifyToken || !appUuid) {
-            (0, core_1.setFailed)((_a = new Error("Missing required environment variables")) !== null && _a !== void 0 ? _a : "Unknown error");
+            (0, core_1.setFailed)((_a = new Error(`${hour} INFO: Missing required environment variables`)) !== null && _a !== void 0 ? _a : "Unknown error");
         }
         const api = axios_1.default.create({
             baseURL: coolifyUrl,
@@ -39,7 +40,6 @@ const run = async () => {
                 "Content-Type": "application/json",
             },
         });
-        const hour = (0, utils_1.generateHour)();
         try {
             const urlReplaced = coolifyUrl.replace("v1", "health");
             await api.get(urlReplaced);
@@ -57,8 +57,7 @@ const run = async () => {
                 value,
                 is_literal: key === "MYSQL_PASSWORD" ? true : false,
             }));
-            const hour = (0, utils_1.generateHour)();
-            (0, core_1.info)("Updating environment variables...");
+            (0, core_1.info)(`${hour} INFO: Updating environment variables...`);
             const body = {
                 data: convertedJsonToArray,
             };
@@ -68,7 +67,7 @@ const run = async () => {
             }
             (0, core_1.info)(`${hour} INFO: Updated environment variables successfully!`);
         }
-        (0, core_1.info)("Deploying application...");
+        (0, core_1.info)(`${hour} INFO: Deploying application...`);
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
         const deploymentUuid = (_e = (_d = restart === null || restart === void 0 ? void 0 : restart.data) === null || _d === void 0 ? void 0 : _d.deployments[0]) === null || _e === void 0 ? void 0 : _e.deployment_uuid;
         let deploymentStatus;
@@ -80,20 +79,18 @@ const run = async () => {
             deploymentStatus = (_h = (_g = (await api.get(`/deployments/${deploymentUuid}`))) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.status;
             iterationCount++;
             if (iterationCount % 8 === 0) {
-                const hour = (0, utils_1.generateHour)();
                 (0, core_1.info)(`${hour} INFO: Deployment status ${deploymentStatus}`);
             }
             if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
                 (0, core_1.setFailed)((_j = new Error(`${hour} INFO: Failed to deploy application`)) !== null && _j !== void 0 ? _j : "Unknown error");
             }
             const baseDelay = 2000;
-            const maxDelay = 30000;
+            const maxDelay = 20000;
             const delay = Math.min(baseDelay * Math.pow(2, iterationCount), maxDelay) *
                 (0.8 + Math.random() * 0.4);
             await new Promise((resolve) => setTimeout(resolve, delay));
         } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
         if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
-            const hour = (0, utils_1.generateHour)();
             (0, core_1.info)(`${hour} INFO: Deployment status: ${deploymentStatus}\nApplication deployed successfully! 🚀`);
         }
     }
@@ -117,10 +114,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateHour = void 0;
 const generateHour = () => {
     const date = new Date();
-    const hours = date.getHours() < 10 ? date.getHours() : date.getHours();
-    const minutes = date.getMinutes() < 10 ? date.getMinutes() : date.getMinutes();
-    const seconds = date.getSeconds() < 10 ? date.getSeconds() : date.getSeconds();
-    return `${hours}:${minutes}:${seconds}`;
+    return [(Number(date.getHours()) - 3), date.getMinutes(), date.getSeconds()]
+        .map((unit) => String(unit).padStart(2, "0"))
+        .join(":");
 };
 exports.generateHour = generateHour;
 
