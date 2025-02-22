@@ -24,13 +24,13 @@ var DEPLOYMENT_STATUS;
 const run = async () => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     try {
-        const hour = (0, utils_1.generateHour)();
         const coolifyUrl = (0, core_1.getInput)("coolify_url");
         const coolifyToken = (0, core_1.getInput)("coolify_token");
         const appUuid = (0, core_1.getInput)("coolify_app_uuid");
         const secrets = (0, core_1.getInput)("secrets");
         const secretsToExclude = (0, core_1.getInput)("secrets_to_exclude");
         if (!coolifyUrl || !coolifyToken || !appUuid) {
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.setFailed)((_a = new Error(`${hour} INFO: Missing required environment variables`)) !== null && _a !== void 0 ? _a : "Unknown error");
         }
         const api = axios_1.default.create({
@@ -43,9 +43,11 @@ const run = async () => {
         try {
             const urlReplaced = coolifyUrl.replace("v1", "health");
             await api.get(urlReplaced);
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.info)(`${hour} INFO: Authentication successful!`);
         }
         catch (error) {
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.setFailed)((_b = new Error(`${hour} INFO: Error when performing authentication!`)) !== null && _b !== void 0 ? _b : "Unknown error");
         }
         if (secrets && secrets !== undefined) {
@@ -57,6 +59,7 @@ const run = async () => {
                 value,
                 is_literal: key === "MYSQL_PASSWORD" ? true : false,
             }));
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.info)(`${hour} INFO: Updating environment variables...`);
             const body = {
                 data: convertedJsonToArray,
@@ -67,18 +70,21 @@ const run = async () => {
             }
             (0, core_1.info)(`${hour} INFO: Updated environment variables successfully!`);
         }
+        const hour = (0, utils_1.generateHour)();
         (0, core_1.info)(`${hour} INFO: Deploying application...`);
         const restart = await api.post(`/deploy?uuid=${appUuid}`);
         const deploymentUuid = (_e = (_d = restart === null || restart === void 0 ? void 0 : restart.data) === null || _d === void 0 ? void 0 : _d.deployments[0]) === null || _e === void 0 ? void 0 : _e.deployment_uuid;
         let deploymentStatus;
         let iterationCount = 0;
         if (restart.status !== 200) {
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.setFailed)((_f = new Error(`${hour} INFO: Failed to restart application`)) !== null && _f !== void 0 ? _f : "Unknown error");
         }
         do {
             deploymentStatus = (_h = (_g = (await api.get(`/deployments/${deploymentUuid}`))) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.status;
             iterationCount++;
             if (iterationCount % 8 === 0) {
+                const hour = (0, utils_1.generateHour)();
                 (0, core_1.info)(`${hour} INFO: Deployment status ${deploymentStatus}`);
             }
             if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
@@ -91,6 +97,7 @@ const run = async () => {
             await new Promise((resolve) => setTimeout(resolve, delay));
         } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
         if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+            const hour = (0, utils_1.generateHour)();
             (0, core_1.info)(`${hour} INFO: Deployment status: ${deploymentStatus}\n${hour} INFO: Application deployed successfully! 🚀`);
         }
     }

@@ -11,7 +11,6 @@ enum DEPLOYMENT_STATUS {
 
 export const run = async () => {
   try {
-    const hour = generateHour();
     const coolifyUrl = getInput("coolify_url");
     const coolifyToken = getInput("coolify_token");
     const appUuid = getInput("coolify_app_uuid");
@@ -19,6 +18,7 @@ export const run = async () => {
     const secretsToExclude = getInput("secrets_to_exclude");
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
+      const hour = generateHour();
       setFailed(
         new Error(`${hour} INFO: Missing required environment variables`) ?? "Unknown error"
       );
@@ -35,8 +35,10 @@ export const run = async () => {
     try {
       const urlReplaced = coolifyUrl.replace("v1", "health");
       await api.get(urlReplaced);
+      const hour = generateHour();
       info(`${hour} INFO: Authentication successful!`);
     } catch (error) {
+      const hour = generateHour();
       setFailed(
         new Error(`${hour} INFO: Error when performing authentication!`) ??
           "Unknown error"
@@ -54,6 +56,7 @@ export const run = async () => {
           is_literal: key === "MYSQL_PASSWORD" ? true : false,
         }));
 
+      const hour = generateHour();
       info(`${hour} INFO: Updating environment variables...`);
       const body = {
         data: convertedJsonToArray,
@@ -73,6 +76,7 @@ export const run = async () => {
       info(`${hour} INFO: Updated environment variables successfully!`);
     }
 
+    const hour = generateHour();
     info(`${hour} INFO: Deploying application...`);
     const restart = await api.post(`/deploy?uuid=${appUuid}`);
     const deploymentUuid = restart?.data?.deployments[0]?.deployment_uuid;
@@ -80,6 +84,7 @@ export const run = async () => {
     let iterationCount = 0;
 
     if (restart.status !== 200) {
+      const hour = generateHour();
       setFailed(
         new Error(`${hour} INFO: Failed to restart application`) ??
           "Unknown error"
@@ -92,6 +97,7 @@ export const run = async () => {
       iterationCount++;
 
       if (iterationCount % 8 === 0) {
+        const hour = generateHour();
         info(`${hour} INFO: Deployment status ${deploymentStatus}`);
       }
 
@@ -112,6 +118,7 @@ export const run = async () => {
     } while (deploymentStatus !== DEPLOYMENT_STATUS.FINISHED);
 
     if (deploymentStatus === DEPLOYMENT_STATUS.FINISHED) {
+      const hour = generateHour();
       info(
         `${hour} INFO: Deployment status: ${deploymentStatus}\n${hour} INFO: Application deployed successfully! 🚀`
       );

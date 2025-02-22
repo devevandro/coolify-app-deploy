@@ -1,6 +1,6 @@
 {
   "name": "coolify-app-deploy",
-  "version": "v6",
+  "version": "v6.0.1",
   "description": "Deploy to Coolify",
   "main": "main/index.js",
   "scripts": {
