@@ -22,6 +22,7 @@ export const run = async () => {
       setFailed(
         new Error(`${hour} INFO: Missing required environment variables`) ?? "Unknown error"
       );
+      return;
     }
 
     const api = axios.create({
@@ -30,6 +31,7 @@ export const run = async () => {
         Authorization: `Bearer ${coolifyToken}`,
         "Content-Type": "application/json",
       },
+      timeout: 30000,
     });
 
     try {
@@ -39,17 +41,32 @@ export const run = async () => {
       info(`${hour} INFO: Authentication successful!`);
     } catch (error) {
       const hour = generateHour();
+      const errorMessage = axios.isAxiosError(error)
+        ? `${error.response?.status} - ${error.response?.statusText}`
+        : "Unknown error";
       setFailed(
-        new Error(`${hour} INFO: Error when performing authentication!`) ??
+        new Error(`${hour} INFO: Error when performing authentication! ${errorMessage}`) ??
           "Unknown error"
       );
+      return;
     }
 
     if (secrets && secrets !== undefined) {
-      const secretsParsed =
-        typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+      let secretsParsed;
+      try {
+        secretsParsed =
+          typeof secrets === "string" ? JSON.parse(secrets) : secrets;
+      } catch (parseError) {
+        const hour = generateHour();
+        setFailed(
+          new Error(`${hour} INFO: Failed to parse secrets JSON!`) ?? "Unknown error"
+        );
+        return;
+      }
+
+      const excludeList = secretsToExclude ? JSON.parse(secretsToExclude || "[]") : [];
       const convertedJsonToArray = Object.entries(secretsParsed)
-        .filter(([key]) => !secretsToExclude.includes(key))
+        .filter(([key]) => !excludeList.includes(key))
         .map(([key, value]) => ({
           key,
           value,
@@ -71,6 +88,7 @@ export const run = async () => {
           new Error(`${hour} INFO: Failed to update environment variables`) ??
             "Unknown error"
         );
+        return;
       }
 
       info(`${hour} INFO: Updated environment variables successfully!`);
@@ -82,6 +100,7 @@ export const run = async () => {
     const deploymentUuid = restart?.data?.deployments[0]?.deployment_uuid;
     let deploymentStatus: DEPLOYMENT_STATUS;
     let iterationCount = 0;
+    let failureCount = 0;
 
     if (restart.status !== 200) {
       const hour = generateHour();
@@ -89,6 +108,7 @@ export const run = async () => {
         new Error(`${hour} INFO: Failed to restart application`) ??
           "Unknown error"
       );
+      return;
     }
 
     do {
@@ -102,10 +122,17 @@ export const run = async () => {
       }
 
       if (deploymentStatus === DEPLOYMENT_STATUS.FAILED) {
-        setFailed(
-          new Error(`${hour} INFO: Failed to deploy application`) ??
-            "Unknown error"
-        );
+        failureCount++;
+        if (failureCount >= 3) {
+          const hour = generateHour();
+          setFailed(
+            new Error(`${hour} INFO: Failed to deploy application`) ??
+              "Unknown error"
+          );
+          return;
+        }
+      } else {
+        failureCount = 0;
       }
 
       const baseDelay = 2000;
