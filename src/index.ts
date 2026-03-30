@@ -19,10 +19,9 @@ export const run = async () => {
 
     if (!coolifyUrl || !coolifyToken || !appUuid) {
       const hour = generateHour();
-      setFailed(
-        new Error(`${hour} INFO: Missing required environment variables`) ?? "Unknown error"
-      );
-      return;
+      const error = new Error(`${hour} INFO: Missing required environment variables`);
+      setFailed(error);
+      throw error;
     }
 
     const api = axios.create({
@@ -44,11 +43,9 @@ export const run = async () => {
       const errorMessage = axios.isAxiosError(error)
         ? `${error.response?.status} - ${error.response?.statusText}`
         : "Unknown error";
-      setFailed(
-        new Error(`${hour} INFO: Error when performing authentication! ${errorMessage}`) ??
-          "Unknown error"
-      );
-      return;
+      const authError = new Error(`${hour} INFO: Error when performing authentication! ${errorMessage}`);
+      setFailed(authError);
+      throw authError;
     }
 
     if (secrets && secrets !== undefined) {
@@ -58,10 +55,9 @@ export const run = async () => {
           typeof secrets === "string" ? JSON.parse(secrets) : secrets;
       } catch (parseError) {
         const hour = generateHour();
-        setFailed(
-          new Error(`${hour} INFO: Failed to parse secrets JSON!`) ?? "Unknown error"
-        );
-        return;
+        const parseErr = new Error(`${hour} INFO: Failed to parse secrets JSON!`);
+        setFailed(parseErr);
+        throw parseErr;
       }
 
       const excludeList = secretsToExclude ? JSON.parse(secretsToExclude || "[]") : [];
@@ -84,11 +80,9 @@ export const run = async () => {
       );
 
       if (envUpdate.status !== 201) {
-        setFailed(
-          new Error(`${hour} INFO: Failed to update environment variables`) ??
-            "Unknown error"
-        );
-        return;
+        const envError = new Error(`${hour} INFO: Failed to update environment variables`);
+        setFailed(envError);
+        throw envError;
       }
 
       info(`${hour} INFO: Updated environment variables successfully!`);
@@ -104,11 +98,9 @@ export const run = async () => {
 
     if (restart.status !== 200) {
       const hour = generateHour();
-      setFailed(
-        new Error(`${hour} INFO: Failed to restart application`) ??
-          "Unknown error"
-      );
-      return;
+      const restartError = new Error(`${hour} INFO: Failed to restart application`);
+      setFailed(restartError);
+      throw restartError;
     }
 
     do {
@@ -125,11 +117,9 @@ export const run = async () => {
         failureCount++;
         if (failureCount >= 3) {
           const hour = generateHour();
-          setFailed(
-            new Error(`${hour} INFO: Failed to deploy application`) ??
-              "Unknown error"
-          );
-          return;
+          const error = new Error(`${hour} INFO: Failed to deploy application`);
+          setFailed(error);
+          throw error;
         }
       } else {
         failureCount = 0;
