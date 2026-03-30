@@ -8,6 +8,7 @@
 - 🔄 Updates environment variables directly on the Coolify instance.
 - 🔑 Secure authentication via Coolify API.
 - ⚡️ Easy integration with GitHub Actions workflows.
+- ⛔ Automatic interruption when deployment fails 3 consecutive times.
 
 Required Inputs
 
@@ -37,7 +38,7 @@ jobs:
     environment: stage
     steps:
       - name: GitHub Action - Deploy and Update ENVs on Coolify
-        uses: devevandro/coolify-app-deploy@v6.1.0
+        uses: devevandro/coolify-app-deploy@v6.1.1
         with:
           coolify_url: ${{ secrets.COOLIFY_URL }}
           coolify_token: ${{ secrets.COOLIFY_TOKEN }}
