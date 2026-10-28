@@ -76,7 +76,7 @@ const run = async () => {
                 .map(([key, value]) => ({
                 key,
                 value,
-                is_literal: key === "MYSQL_PASSWORD" ? true : false,
+                is_literal: true,
             }));
             const hour = (0, utils_1.generateHour)();
             (0, core_1.info)(`${hour} INFO: Updating environment variables...`);
