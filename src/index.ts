@@ -66,7 +66,7 @@ export const run = async () => {
         .map(([key, value]) => ({
           key,
           value,
-          is_literal: key === "MYSQL_PASSWORD" ? true : false,
+          is_literal: true,
         }));
 
       const hour = generateHour();
